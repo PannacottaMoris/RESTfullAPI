@@ -66,6 +66,9 @@ public class WebApiController {
     @ResponseBody
     public List<GoodsEntity> update(Model model, @RequestBody GoodsEntity good) {
     	List<GoodsEntity> target = repository.findByName(good.getName());
+    	if (target.size() == 0) {
+    		throw new ExceptionNone(good);
+    	}
     	for(GoodsEntity tar : target) {
     		tar.setPrice(good.getPrice());
     		tar.setDescription(good.getDescription());
