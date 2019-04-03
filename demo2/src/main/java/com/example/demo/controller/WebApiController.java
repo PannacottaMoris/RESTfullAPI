@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entity.GoodsEntity;
 import com.example.demo.exception.ExceptionConflictName;
+import com.example.demo.exception.ExceptionNone;
 import com.example.demo.repository.GoodsRepository;
 
 @Controller
@@ -54,6 +55,10 @@ public class WebApiController {
     @Transactional
     @ResponseBody
     public List<GoodsEntity> search(Model model, @RequestBody GoodsEntity good) {
+    	List<GoodsEntity> target = repository.findByName(good.getName());
+    	if (target.size() == 0) {
+    		throw new ExceptionNone(good);
+    	}
     	return repository.findByName(good.getName());
     }
     
@@ -95,6 +100,14 @@ public class WebApiController {
     public Map<String, Object> handleException(ExceptionConflictName e) {
     	Map<String, Object> map = new HashMap<>();
         map.put("message", e.getType() + " is already resisted");
+        return map;
+    }
+    
+    @ExceptionHandler(ExceptionNone.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, Object> handleException(ExceptionNone e) {
+    	Map<String, Object> map = new HashMap<>();
+        map.put("message", e.getGood().getName() + " is not in the store");
         return map;
     }
     
