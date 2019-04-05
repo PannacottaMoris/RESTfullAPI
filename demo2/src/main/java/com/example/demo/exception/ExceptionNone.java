@@ -1,19 +1,17 @@
 package com.example.demo.exception;
 
-import com.example.demo.entity.GoodsEntity;
-
 public class ExceptionNone extends RuntimeException {
-	private GoodsEntity good;
+	private String comment;
 
-	public ExceptionNone(GoodsEntity good) {
-		this.setGood(good);
+	public ExceptionNone(String comment) {
+		this.setComment(comment);
 	}
 
-	public GoodsEntity getGood() {
-		return good;
+	public String getComment() {
+		return comment;
 	}
 
-	public void setGood(GoodsEntity good) {
-		this.good = good;
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 }

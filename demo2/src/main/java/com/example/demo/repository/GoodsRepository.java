@@ -14,7 +14,4 @@ public interface GoodsRepository extends JpaRepository<GoodsEntity, Integer>, Jp
 
 	    @Query("from GoodsEntity s where s.name = ?1")
 	    public List<GoodsEntity> findByName(String name);
-
-	    @Query("from GoodsEntity s where s.description like %?1%")
-	    public List<GoodsEntity> findByDescription(String word);
 }

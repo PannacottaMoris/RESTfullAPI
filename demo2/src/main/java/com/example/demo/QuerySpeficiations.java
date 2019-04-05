@@ -34,7 +34,6 @@ public class QuerySpeficiations {
 	}
 	
 	public static Specification<SearchQuery> priceGreaterThanEqual(long minPrice){
-//		return StringUtils.isEmpty(minPrice) ? null : new Specification<SearchQuery>() {
 		return minPrice == 0 ? null : new Specification<SearchQuery>() {
 
 			@Override
@@ -46,7 +45,6 @@ public class QuerySpeficiations {
 	}
 	
 	public static Specification<SearchQuery> priceLessThanEqual(long maxPrice){
-//		return StringUtils.isEmpty(maxPrice) ? null : new Specification<SearchQuery>() {
 		return maxPrice == 0 ? null : new Specification<SearchQuery>() {
 
 			@Override

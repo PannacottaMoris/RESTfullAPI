@@ -37,7 +37,6 @@ public class WebApiController {
 
 	//for Debuig showiung all goods
     @RequestMapping(path = "/show", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Transactional
     @ResponseBody
     public List<GoodsEntity> show() {
         return repository.findAll();
@@ -57,19 +56,20 @@ public class WebApiController {
 
     //search goods
     @RequestMapping(path="/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Transactional
     @ResponseBody
     public List<GoodsEntity> search(Model model, @RequestBody SearchQuery query) {
-    	List<GoodsEntity> target = repository.findByDescription(query.getDescription());
 
-    	if (target.size() == 0) {
-    	//	throw new ExceptionNone(query);
-    	}
-    	return repository.findAll(Specifications
+    	List<GoodsEntity> result = repository.findAll(Specifications
     			.where(QuerySpeficiations.nameContains(query.getName()))
     			.and(QuerySpeficiations.descriptionContains(query.getDescription()))
     			.and(QuerySpeficiations.priceGreaterThanEqual(query.getMinPrice()))
     			.and(QuerySpeficiations.priceLessThanEqual(query.getMaxPrice())));
+    	
+    	if (result.size() == 0) {
+    		throw new ExceptionNone("Nothing in the store");
+    	}
+    	
+    	return result;
     }
 
 	@RequestMapping(value="/update", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -77,7 +77,7 @@ public class WebApiController {
     public List<GoodsEntity> update(Model model, @RequestBody GoodsEntity good) {
     	List<GoodsEntity> target = repository.findByName(good.getName());
     	if (target.size() == 0) {
-    		throw new ExceptionNone(good);
+    		throw new ExceptionNone(good.getName() + " is nothing in the store");
     	}
     	for(GoodsEntity tar : target) {
     		tar.setPrice(good.getPrice());
@@ -111,7 +111,7 @@ public class WebApiController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleException(ExceptionConflictName e) {
     	Map<String, Object> map = new HashMap<>();
-        map.put("message", e.getType() + " is already resisted");
+        map.put("message", e.getType());
         return map;
     }
 
@@ -119,7 +119,7 @@ public class WebApiController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleException(ExceptionNone e) {
     	Map<String, Object> map = new HashMap<>();
-        map.put("message", e.getGood().getName() + " is not in the store");
+        map.put("message", e.getComment());
         return map;
     }
 
