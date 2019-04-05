@@ -13,7 +13,7 @@ public class GoodsEntity {
 	@Column(name = "name")
 	private String name;
 	@Column(name = "price")
-	private int price;
+	private long price;
 	@Column(name = "description")
 	private String description;
 	
@@ -31,10 +31,10 @@ public class GoodsEntity {
 		this.name = name;
 	}
 	
-	public int getPrice() {
+	public long getPrice() {
 		return price;
 	}
-	public void setPrice(int price) {
+	public void setPrice(long price) {
 		this.price = price;
 	}
 	

@@ -3,8 +3,8 @@ package com.example.demo.entity;
 public class SearchQuery {
 	private int id;
 	private String name;
-	private int maxPrice;
-	private int minPrice;
+	private long maxPrice;
+	private long minPrice;
 	private String description;
 
 	public int getId() {
@@ -14,10 +14,10 @@ public class SearchQuery {
 		this.id = id;
 	}
 
-	public int getMinPrice() {
+	public long getMinPrice() {
 		return minPrice;
 	}
-	public void setMinPrice(int minPrice) {
+	public void setMinPrice(long minPrice) {
 		this.minPrice = minPrice;
 	}
 
@@ -28,10 +28,10 @@ public class SearchQuery {
 		this.name = name;
 	}
 
-	public int getMaxPrice() {
+	public long getMaxPrice() {
 		return maxPrice;
 	}
-	public void setMaxPrice(int maxPrice) {
+	public void setMaxPrice(long maxPrice) {
 		this.maxPrice = maxPrice;
 	}
 

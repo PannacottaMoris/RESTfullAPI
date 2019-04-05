@@ -33,7 +33,7 @@ public class QuerySpeficiations {
 		};
 	}
 	
-	public static Specification<SearchQuery> priceGreaterThanEqual(int minPrice){
+	public static Specification<SearchQuery> priceGreaterThanEqual(long minPrice){
 //		return StringUtils.isEmpty(minPrice) ? null : new Specification<SearchQuery>() {
 		return minPrice == 0 ? null : new Specification<SearchQuery>() {
 
@@ -45,7 +45,7 @@ public class QuerySpeficiations {
 		};
 	}
 	
-	public static Specification<SearchQuery> priceLessThanEqual(int maxPrice){
+	public static Specification<SearchQuery> priceLessThanEqual(long maxPrice){
 //		return StringUtils.isEmpty(maxPrice) ? null : new Specification<SearchQuery>() {
 		return maxPrice == 0 ? null : new Specification<SearchQuery>() {
 
