@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -20,24 +21,28 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.QuerySpeficiations;
 import com.example.demo.entity.GoodsEntity;
+import com.example.demo.entity.SearchQuery;
 import com.example.demo.exception.ExceptionConflictName;
 import com.example.demo.exception.ExceptionNone;
 import com.example.demo.repository.GoodsRepository;
 
+@SuppressWarnings("deprecation")
 @Controller
 @RestController
 public class WebApiController {
 	@Autowired
 	private GoodsRepository repository;
-	
+
+	//for Debuig showiung all goods
     @RequestMapping(path = "/show", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
     @ResponseBody
     public List<GoodsEntity> show() {
         return repository.findAll();
     }
-    
+    //add goods
     @RequestMapping(path = "/add", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
     @ResponseBody
@@ -50,19 +55,24 @@ public class WebApiController {
         return repository.findAll();
     }
 
-    
+    //search goods
     @RequestMapping(path="/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
     @ResponseBody
-    public List<GoodsEntity> search(Model model, @RequestBody GoodsEntity good) {
-    	List<GoodsEntity> target = repository.findByName(good.getName());
+    public List<GoodsEntity> search(Model model, @RequestBody SearchQuery query) {
+    	List<GoodsEntity> target = repository.findByDescription(query.getDescription());
+
     	if (target.size() == 0) {
-    		throw new ExceptionNone(good);
+    	//	throw new ExceptionNone(query);
     	}
-    	return repository.findByName(good.getName());
+    	return repository.findAll(Specifications
+    			.where(QuerySpeficiations.nameContains(query.getName()))
+    			.and(QuerySpeficiations.descriptionContains(query.getDescription()))
+    			.and(QuerySpeficiations.priceGreaterThanEqual(query.getMinPrice()))
+    			.and(QuerySpeficiations.priceLessThanEqual(query.getMaxPrice())));
     }
-    
-    @RequestMapping(value="/update", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+
+	@RequestMapping(value="/update", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<GoodsEntity> update(Model model, @RequestBody GoodsEntity good) {
     	List<GoodsEntity> target = repository.findByName(good.getName());
@@ -76,7 +86,7 @@ public class WebApiController {
     	}
     	return repository.findAll();
     }
-    
+
     @RequestMapping(value="/delete", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<GoodsEntity> delete(Model model, @RequestBody GoodsEntity good) {
@@ -86,9 +96,8 @@ public class WebApiController {
     	}
     	return repository.findAll();
     }
-    
+
     /* Exception */
-    
     @ExceptionHandler(SQLException.class)
     private void sqlExceptionHandler(Exception e) {
     	System.out.println("SQLException Handler");
@@ -97,7 +106,7 @@ public class WebApiController {
     private void runtimeExceptionHandler(RuntimeException e) {
     	System.out.println("RuntimeException Handler");
     }
-    
+
     @ExceptionHandler(ExceptionConflictName.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleException(ExceptionConflictName e) {
@@ -105,7 +114,7 @@ public class WebApiController {
         map.put("message", e.getType() + " is already resisted");
         return map;
     }
-    
+
     @ExceptionHandler(ExceptionNone.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleException(ExceptionNone e) {
@@ -113,7 +122,7 @@ public class WebApiController {
         map.put("message", e.getGood().getName() + " is not in the store");
         return map;
     }
-    
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(Exception.class)
     protected Map<String, Object> exceptionHandler(Exception e) {
