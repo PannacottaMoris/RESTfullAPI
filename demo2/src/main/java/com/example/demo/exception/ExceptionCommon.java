@@ -1,9 +1,9 @@
 package com.example.demo.exception;
 
-public class ExceptionNone extends RuntimeException {
+public class ExceptionCommon extends RuntimeException {
 	private String comment;
 
-	public ExceptionNone(String comment) {
+	public ExceptionCommon(String comment) {
 		this.setComment(comment);
 	}
 

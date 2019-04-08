@@ -1,31 +1,24 @@
 package com.example.demo.controller;
 
-import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specifications;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.QuerySpeficiations;
 import com.example.demo.entity.GoodsEntity;
 import com.example.demo.entity.SearchQuery;
-import com.example.demo.exception.ExceptionConflictName;
-import com.example.demo.exception.ExceptionNone;
+import com.example.demo.exception.ExceptionCommon;
 import com.example.demo.repository.GoodsRepository;
 
 @SuppressWarnings("deprecation")
@@ -41,14 +34,21 @@ public class WebApiController {
     public List<GoodsEntity> show() {
         return repository.findAll();
     }
+    
     //add goods
     @RequestMapping(path = "/add", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
     @ResponseBody
     public List<GoodsEntity> add(Model model, @RequestBody GoodsEntity good) throws Exception {
+    	if(good.getName() == null || good.getDescription() == null || good.getPrice() == 0){
+    		throw new ExceptionCommon("Your request is not enouth.");
+    	}
+    	
     	List<GoodsEntity> record = repository.findByName(good.getName());
+    	
+    	//check which is user response is new.
     	if(record.size() != 0) {
-    		throw new ExceptionConflictName(good.getName(), good.getId());
+    		throw new ExceptionCommon(good.getName() + " is already added");
     	}
         repository.save(good);
         return repository.findAll();
@@ -64,20 +64,23 @@ public class WebApiController {
     			.and(QuerySpeficiations.descriptionContains(query.getDescription()))
     			.and(QuerySpeficiations.priceGreaterThanEqual(query.getMinPrice()))
     			.and(QuerySpeficiations.priceLessThanEqual(query.getMaxPrice())));
-    	
     	if (result.size() == 0) {
-    		throw new ExceptionNone("Nothing in the store");
+    		throw new ExceptionCommon("Nothing in the store");
     	}
     	
     	return result;
     }
 
+    //update goods data
 	@RequestMapping(value="/update", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<GoodsEntity> update(Model model, @RequestBody GoodsEntity good) {
+		if(good.getName() == null || good.getDescription() == null || good.getPrice() == 0){
+    		throw new ExceptionCommon("Your request is not enouth.");
+    	}
     	List<GoodsEntity> target = repository.findByName(good.getName());
     	if (target.size() == 0) {
-    		throw new ExceptionNone(good.getName() + " is nothing in the store");
+    		throw new ExceptionCommon(good.getName() + " is nothing in the store");
     	}
     	for(GoodsEntity tar : target) {
     		tar.setPrice(good.getPrice());
@@ -95,39 +98,5 @@ public class WebApiController {
     		repository.deleteById(tar.getId());
     	}
     	return repository.findAll();
-    }
-
-    /* Exception */
-    @ExceptionHandler(SQLException.class)
-    private void sqlExceptionHandler(Exception e) {
-    	System.out.println("SQLException Handler");
-    }
-    @ExceptionHandler(RuntimeException.class)
-    private void runtimeExceptionHandler(RuntimeException e) {
-    	System.out.println("RuntimeException Handler");
-    }
-
-    @ExceptionHandler(ExceptionConflictName.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, Object> handleException(ExceptionConflictName e) {
-    	Map<String, Object> map = new HashMap<>();
-        map.put("message", e.getType());
-        return map;
-    }
-
-    @ExceptionHandler(ExceptionNone.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, Object> handleException(ExceptionNone e) {
-    	Map<String, Object> map = new HashMap<>();
-        map.put("message", e.getComment());
-        return map;
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(Exception.class)
-    protected Map<String, Object> exceptionHandler(Exception e) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("override", "error");
-        return map;
     }
 }
