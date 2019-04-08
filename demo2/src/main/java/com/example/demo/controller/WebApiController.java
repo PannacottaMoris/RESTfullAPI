@@ -9,11 +9,12 @@ import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.QuerySpeficiations;
 import com.example.demo.entity.GoodsEntity;
@@ -23,8 +24,15 @@ import com.example.demo.repository.GoodsRepository;
 
 @SuppressWarnings("deprecation")
 @Controller
-@RestController
 public class WebApiController {
+	@RequestMapping("/")
+	public ModelAndView index(@ModelAttribute SearchQuery query) {
+		ModelAndView mav = new ModelAndView();
+		mav.setViewName("index");
+		mav.addObject("query", query);
+		return mav;
+	}
+	
 	@Autowired
 	private GoodsRepository repository;
 
@@ -33,6 +41,13 @@ public class WebApiController {
     @ResponseBody
     public List<GoodsEntity> show() {
         return repository.findAll();
+    }
+    
+    @RequestMapping(value = "/debug", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public SearchQuery sq(Model model, @ModelAttribute SearchQuery query) {
+    	
+    	return query;
     }
     
     //add goods
