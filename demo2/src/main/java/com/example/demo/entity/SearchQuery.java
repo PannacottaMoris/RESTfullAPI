@@ -1,6 +1,8 @@
 package com.example.demo.entity;
 
-public class SearchQuery {
+import java.io.Serializable;
+
+public class SearchQuery implements Serializable {
 	private int id;
 	private String name;
 	private long maxPrice;
